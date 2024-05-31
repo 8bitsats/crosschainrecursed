@@ -1,0 +1,32 @@
+<script>
+    // Existing matrix animation script
+
+    document.getElementById('password').addEventListener('input', async function() {
+        if (this.value.toLowerCase() === 'recursion') {
+            const ordinalExists = await verifyOrdinalOnBitcoin();
+            if (ordinalExists) {
+                document.getElementById('foreground-img').src = 'https://ordinals.com/content/94ad03c0274df4fb6bee9adc32e0b84787e319691ac16196b0fdf06d790d012di0';
+            }
+        }
+    });
+
+    async function verifyOrdinalOnBitcoin() {
+        // Fetch proof from oracle service (simplified example)
+        const response = await fetch('http://localhost:5000/get_proof');
+        const { pubkey, signature, tx_hash } = await response.json();
+
+        // Interact with Solana smart contract to verify ZKP
+        const provider = anchor.AnchorProvider.env();
+        anchor.setProvider(provider);
+
+        const program = anchor.workspace.CrossChainOracle;
+        const tx = await program.rpc.verifyAndUpdate(pubkey, signature, tx_hash, {
+            accounts: {
+                nft: nftPublicKey,
+            },
+        });
+        console.log('Transaction signature', tx);
+
+        return true;
+    }
+</script>
